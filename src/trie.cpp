@@ -103,6 +103,37 @@ template <typename T>
 bag<trie<T>>& trie<T>::get_children() { return m_c; }
 
 
+/* comparison */
+template <typename T>
+bool trie<T>::operator==(trie<T> const& t) const {
+    
+    if( (m_l == nullptr && t.m_l != nullptr) || (m_l != nullptr && t.m_l == nullptr) ) {
+        return false;
+    }
+
+    if(m_l != nullptr && t.m_l != nullptr) {
+        if( *(m_l) != *(t.m_l) ) {
+            return false; 
+        }
+    }
+
+    if(m_w != t.m_w) {
+        return false;
+    }
+
+    if(m_c != t.m_c) {
+        return false;
+    }
+
+    return true;
+}
+
+template <typename T>
+bool trie<T>::operator!=(trie<T> const& t) const {
+    return !(*this == t);
+}
+
+
 /*
     parsing:
 
@@ -116,7 +147,7 @@ trie<T> NODE(std::istream& is, trie<T>* parent, T* label);
 template <typename T>
 trie<T> LEAF(std::istream& is, trie<T>* parent, T* label);
 template <typename T>
-trie<T> TRIE(std::istream& is, trie<T>* parent, T* label);
+trie<T> TR(std::istream& is, trie<T>* parent, T* label);
 
 
 static void consume_children(std::istream& is)
@@ -156,7 +187,7 @@ trie<T> NODE(std::istream& is, trie<T>* parent, T* label) {
         is >> lab;
         T* l = new T(lab);
 
-        r.add_child(TRIE(is, &r, l));
+        r.add_child(TR(is, &r, l));
 
         is >> c;
     } while(c == ',');
@@ -189,7 +220,7 @@ trie<T> LEAF(std::istream& is, trie<T>* parent, T* label) {
 }
 
 template <typename T>
-trie<T> TRIE(std::istream& is, trie<T>* parent, T* label) {
+trie<T> TR(std::istream& is, trie<T>* parent, T* label) {
     char c;
     is >> c;
     is.putback(c);
@@ -204,7 +235,7 @@ trie<T> TRIE(std::istream& is, trie<T>* parent, T* label) {
 template <typename T>
 std::istream& operator>>(std::istream& is, trie<T>& t) {
     if(!is.eof()) {
-        t = TRIE<T>(is, nullptr, nullptr);
+        t = TR<T>(is, nullptr, nullptr);
     }
 
     return is;
@@ -212,10 +243,7 @@ std::istream& operator>>(std::istream& is, trie<T>& t) {
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, trie<T>& t) {
-    trie<T> ramo_b = t.get_children().tail()->info;
-
-    trie<T> ramo_bc = ramo_b.get_children().tail()->info;
-    os << ramo_bc.get_children();
-
+    std::cout << t.get_children();
+    
     return os;
 }

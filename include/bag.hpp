@@ -77,6 +77,10 @@ public:
     bag& operator=(bag<T> const& b);
     bag& operator=(bag<T>&& b);
 
+    /* comparison operator */
+    bool operator==(bag<T> const& b) const;
+    bool operator!=(bag<T> const& b) const;
+
     /* methods */
     void add(const T& info);
     void remove(const T& info);
@@ -239,6 +243,29 @@ bag<T>& bag<T>::operator=(bag&& b) {
         b.m_head = b.m_tail = nullptr;
     }
     return *this;
+}
+
+/* comparison */
+template <typename T>
+bool bag<T>::operator==(bag<T> const& b) const {
+    const_iterator this_it = begin();
+    const_iterator b_it = b.begin();
+    bool equals = true;
+
+
+    while(this_it != end() && b_it != b.end() && equals) {
+    
+        if(*this_it != *b_it) { equals = false; }
+        ++this_it;
+        ++b_it;
+    }
+    
+    return equals;   
+}
+
+template <typename T>
+bool bag<T>::operator!=(bag<T> const& b) const {
+    return !(*this == b);
 }
 
 /* private methods */
