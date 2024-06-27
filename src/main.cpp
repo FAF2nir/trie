@@ -3,12 +3,10 @@
 
 int main()
 {
-    trie<std::string> t;
-    trie<std::string> t1;
+    trie<char> t;
 
     try {
         std::cin >> t;
-        std::cin >> t1;
     }
     catch (parser_exception e)
     {
@@ -16,7 +14,11 @@ int main()
         return 1;
     }
 
-    std::cout << (t == t1) << std::endl;
-    std::cout << (t != t1) << std::endl; 
+    std::vector<char> s({'b', 'c', 'z'});
+    
+    trie<char>& t1 = t[s];
+    
+    std::cout<< "t1" << std::endl << t1 << std::endl;
+
     return 0;
 }

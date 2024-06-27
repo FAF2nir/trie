@@ -133,6 +133,41 @@ bool trie<T>::operator!=(trie<T> const& t) const {
     return !(*this == t);
 }
 
+template <typename T>
+trie<T>& trie<T>::operator[](std::vector<T> const& s) {
+    trie<T>* sub_trie = this;
+
+    if(s.empty()) {
+        return *sub_trie;
+    }
+
+    for(typename bag<trie<T>>::iterator it = get_children().begin(); it != get_children().end(); ++it) {
+        if( (it->get_label() != nullptr) && ( *(it->get_label()) == s.at(0)) ) {
+            std::vector<T> sub_vec(s.begin()+1, s.end());
+            sub_trie = &(*it)[sub_vec];
+        }
+    }
+
+    return *sub_trie;
+}
+
+template <typename T>
+trie<T> const& trie<T>::operator[](std::vector<T> const& s) const {
+    trie<T> const* sub_trie = this;
+    
+    if(s.empty()) {
+        return *sub_trie;    
+    }
+
+    for(typename bag<trie<T>>::const_iterator it = get_children().begin(); it != get_children().end(); ++it) {
+        if( (it->get_label() != nullptr) && ( *(it->get_label()) == s.at(0)) ) { 
+            std::vector<T> sub_vec(s.begin()+1, s.end());
+            sub_trie = &(*it)[sub_vec];
+        }
+    }
+    
+    return *sub_trie;
+}
 
 /*
     parsing:
@@ -242,7 +277,7 @@ std::istream& operator>>(std::istream& is, trie<T>& t) {
 }
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, trie<T>& t) {
+std::ostream& operator<<(std::ostream& os, trie<T> const& t) {
     std::cout << t.get_children();
     
     return os;
