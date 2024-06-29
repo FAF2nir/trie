@@ -169,9 +169,195 @@ trie<T> const& trie<T>::operator[](std::vector<T> const& s) const {
     return *sub_trie;
 }
 
-/*
-    parsing:
+/* node iterator */
+template <typename T>
+trie<T>::node_iterator::node_iterator(trie<T>* ptr) : m_ptr(ptr) {}
 
+template <typename T>
+typename trie<T>::node_iterator::reference trie<T>::node_iterator::operator*() const {
+    if(m_ptr->m_l != nullptr) {
+        return *(m_ptr->m_l);
+    }
+
+    return nullptr;
+}
+
+template <typename T>
+typename trie<T>::node_iterator::pointer trie<T>::node_iterator::operator->() const {
+    return m_ptr->m_l;
+}
+
+template <typename T>
+typename trie<T>::node_iterator& trie<T>::node_iterator::operator++() {
+    m_ptr = m_ptr->get_parent();
+    return m_ptr;
+}
+
+template <typename T>
+typename trie<T>::node_iterator trie<T>::node_iterator::operator++(int) {
+    trie<T>* ret = m_ptr;
+    ++(*m_ptr);
+    return ret;
+}
+
+template <typename T>
+bool trie<T>::node_iterator::operator==(node_iterator const& rhs) const {
+    return m_ptr == rhs.m_ptr;
+}
+
+template <typename T>
+bool trie<T>::node_iterator::operator!=(node_iterator const& rhs) const {
+    return m_ptr != rhs.m_ptr;
+}
+
+/* const_node_iterator */
+template <typename T>
+trie<T>::const_node_iterator::const_node_iterator(trie<T> const* ptr) : m_ptr(ptr) {}
+
+template <typename T>
+typename trie<T>::const_node_iterator::reference trie<T>::const_node_iterator::operator*() const {
+    if(m_ptr->m_l != nullptr) {
+        return *(m_ptr->m_l);
+    }
+
+    return nullptr;
+}
+
+template <typename T>
+typename trie<T>::const_node_iterator::pointer trie<T>::const_node_iterator::operator->() const {
+    return m_ptr->m_l;
+}
+
+template <typename T>
+typename trie<T>::const_node_iterator& trie<T>::const_node_iterator::operator++() {
+    m_ptr = m_ptr->m_p;
+    return m_ptr;
+}
+
+template <typename T>
+typename trie<T>::const_node_iterator trie<T>::const_node_iterator::operator++(int) {
+    trie<T>* ret = m_ptr;
+    ++(*m_ptr);
+    return ret;
+}
+
+template <typename T>
+bool trie<T>::const_node_iterator::operator==(const_node_iterator const& rhs) const {
+    return m_ptr == rhs.m_ptr; 
+}
+
+template <typename T>
+bool trie<T>::const_node_iterator::operator!=(const_node_iterator const& rhs) const {
+    return m_ptr != rhs.m_ptr;
+}
+
+/* leaf_iterator */
+template <typename T>
+trie<T>::leaf_iterator::leaf_iterator(trie<T>* ptr) : m_ptr(ptr) {}
+
+template <typename T>
+typename trie<T>::leaf_iterator::reference trie<T>::leaf_iterator::operator*() const {
+    if(m_ptr->m_l != nullptr) {
+        return *(m_ptr->m_l);
+    }
+
+    return nullptr;
+}
+
+template <typename T>
+typename trie<T>::leaf_iterator::pointer trie<T>::leaf_iterator::operator->() const {
+    return m_ptr->m_l;
+}
+
+//TODO
+template <typename T>
+typename trie<T>::leaf_iterator& trie<T>::leaf_iterator::operator++() {
+}
+
+//TODO
+template <typename T>
+typename trie<T>::leaf_iterator trie<T>::leaf_iterator::operator++(int) {
+}
+
+template <typename T>
+bool trie<T>::leaf_iterator::operator==(leaf_iterator const& rhs) const {
+    return m_ptr == rhs.m_ptr;
+}
+
+template <typename T>
+bool trie<T>::leaf_iterator::operator!=(leaf_iterator const& rhs) const {
+    return m_ptr != rhs.m_ptr;
+}
+
+template <typename T>
+trie<T>::leaf_iterator::operator node_iterator() const {
+    return node_iterator(m_ptr);
+}
+
+template <typename T>
+trie<T>& trie<T>::leaf_iterator::get_leaf() const {
+    if(m_ptr) {
+        return *m_ptr;
+    }
+
+    return nullptr;
+}
+
+/* const_leaf_iterator */
+template <typename T>
+trie<T>::const_leaf_iterator::const_leaf_iterator(trie<T> const* ptr) : m_ptr(ptr) {}
+
+template <typename T>
+typename trie<T>::const_leaf_iterator::reference trie<T>::const_leaf_iterator::operator*() const {
+    if(m_ptr->m_l) {
+        return *(m_ptr->m_l);
+    }
+
+    return nullptr;
+}
+
+template <typename T>
+typename trie<T>::const_leaf_iterator::pointer trie<T>::const_leaf_iterator::operator->() const {
+    return m_ptr->m_l;
+}
+
+//TODO
+template <typename T>
+typename trie<T>::const_leaf_iterator& trie<T>::const_leaf_iterator::operator++() {
+}
+
+//TODO
+template <typename T>
+typename trie<T>::const_leaf_iterator trie<T>::const_leaf_iterator::operator++(int) {
+}
+
+template <typename T>
+bool trie<T>::const_leaf_iterator::operator==(const_leaf_iterator const& rhs) const {
+    return m_ptr == rhs.m_ptr; 
+}
+
+template <typename T>
+bool trie<T>::const_leaf_iterator::operator!=(const_leaf_iterator const& rhs) const {
+    return m_ptr != rhs.m_ptr; 
+}
+
+template <typename T>
+trie<T>::const_leaf_iterator::operator const_node_iterator() const {
+    return const_node_iterator(m_ptr);
+}
+
+template <typename T>
+trie<T> const& trie<T>::const_leaf_iterator::get_leaf() const {
+    if(m_ptr) {
+        return *m_ptr;
+    }
+
+    return nullptr;
+}
+
+
+/*
+    CFG:
     TRIE -> LEAF | NODE
     LEAF -> double children = {}
     NODE -> children = { label1 TRIE, ... }

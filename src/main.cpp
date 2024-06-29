@@ -15,10 +15,15 @@ int main()
     }
 
     std::vector<char> s({'b', 'c', 'z'});
+    std::vector<char> s1({'z', 'b', 'c'});
     
     trie<char>& t1 = t[s];
+
+    trie<char>& t2 = t[s1];
     
-    std::cout<< "t1" << std::endl << t1 << std::endl;
+    std::cout << "t1" << std::endl << t1 << std::endl;
+    std::cout << "t2" << std::endl << t2 << std::endl;
+
 
     return 0;
 }
