@@ -255,7 +255,9 @@ bool bag<T>::operator==(bag<T> const& b) const {
 
     while(this_it != end() && b_it != b.end() && equals) {
     
+        if(*(this_it->get_label()) != *(b_it->get_label())) { equals = false; }
         if(*this_it != *b_it) { equals = false; }
+        
         ++this_it;
         ++b_it;
     }

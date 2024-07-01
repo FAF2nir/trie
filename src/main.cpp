@@ -3,10 +3,12 @@
 
 int main()
 {
-    trie<char> t;
+    trie<std::string> t1;
+    trie<std::string> t2;
 
     try {
-        std::cin >> t;
+        std::cin >> t1;
+        std::cin >> t2;
     }
     catch (parser_exception e)
     {
@@ -14,16 +16,39 @@ int main()
         return 1;
     }
 
-    std::vector<char> s({'b', 'c', 'z'});
-    std::vector<char> s1({'z', 'b', 'c'});
-    
-    trie<char>& t1 = t[s];
+    std::cout << t1[{"compilers", "g+"}] << std::endl;
+    std::cout << t2[{"lab1", "g++"}] << std::endl;
 
-    trie<char>& t2 = t[s1];
-    
-    std::cout << "t1" << std::endl << t1 << std::endl;
-    std::cout << "t2" << std::endl << t2 << std::endl;
+    std::cout << (t1[{"compilers", "g+"}] == t2[{"lab1", "g++"}]) << std::endl;
+    std::cout << (t1 == t2) << std::endl;
 
 
     return 0;
 }
+/*
+children = {
+    compilers children = {
+        g+ children = {
+            size 3.3 children = {}
+        },
+        javac 3.1 children = {}
+    },
+    languages children = {
+        c++ 1.1 children = {},
+        java 0.5 children = {}
+    }
+}
+
+children = {
+    lab1 children = {
+        g++ children = {
+            size 3.3 children = {}
+        },
+        javac 3.1 children = {}
+    },
+    lab2 children = {
+        c++ 1.1 children = {},
+        java 0.5 children = {}
+    }
+}
+*/

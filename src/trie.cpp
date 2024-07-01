@@ -106,26 +106,7 @@ bag<trie<T>>& trie<T>::get_children() { return m_c; }
 /* comparison */
 template <typename T>
 bool trie<T>::operator==(trie<T> const& t) const {
-    
-    if( (m_l == nullptr && t.m_l != nullptr) || (m_l != nullptr && t.m_l == nullptr) ) {
-        return false;
-    }
-
-    if(m_l != nullptr && t.m_l != nullptr) {
-        if( *(m_l) != *(t.m_l) ) {
-            return false; 
-        }
-    }
-
-    if(m_w != t.m_w) {
-        return false;
-    }
-
-    if(m_c != t.m_c) {
-        return false;
-    }
-
-    return true;
+    return m_c == t.m_c;
 }
 
 template <typename T>
@@ -175,7 +156,7 @@ trie<T>::node_iterator::node_iterator(trie<T>* ptr) : m_ptr(ptr) {}
 
 template <typename T>
 typename trie<T>::node_iterator::reference trie<T>::node_iterator::operator*() const {
-    if(m_ptr->m_l != nullptr) {
+    if(m_ptr->m_l) {
         return *(m_ptr->m_l);
     }
 
@@ -184,20 +165,26 @@ typename trie<T>::node_iterator::reference trie<T>::node_iterator::operator*() c
 
 template <typename T>
 typename trie<T>::node_iterator::pointer trie<T>::node_iterator::operator->() const {
-    return m_ptr->m_l;
+    if(m_ptr) {
+        return m_ptr->m_l; 
+    }
+
+    return nullptr;
 }
 
 template <typename T>
 typename trie<T>::node_iterator& trie<T>::node_iterator::operator++() {
-    m_ptr = m_ptr->get_parent();
-    return m_ptr;
+    if(m_ptr) {
+        m_ptr = m_ptr->get_parent(); 
+    }
+    return *this;
 }
 
 template <typename T>
 typename trie<T>::node_iterator trie<T>::node_iterator::operator++(int) {
     trie<T>* ret = m_ptr;
-    ++(*m_ptr);
-    return ret;
+    ++(*this);
+    return *ret;
 }
 
 template <typename T>
@@ -216,7 +203,7 @@ trie<T>::const_node_iterator::const_node_iterator(trie<T> const* ptr) : m_ptr(pt
 
 template <typename T>
 typename trie<T>::const_node_iterator::reference trie<T>::const_node_iterator::operator*() const {
-    if(m_ptr->m_l != nullptr) {
+    if(m_ptr && m_ptr->m_l) {
         return *(m_ptr->m_l);
     }
 
@@ -225,20 +212,27 @@ typename trie<T>::const_node_iterator::reference trie<T>::const_node_iterator::o
 
 template <typename T>
 typename trie<T>::const_node_iterator::pointer trie<T>::const_node_iterator::operator->() const {
-    return m_ptr->m_l;
+    if(m_ptr) {
+        return m_ptr->m_l;
+    }
+
+    return nullptr;
 }
 
 template <typename T>
 typename trie<T>::const_node_iterator& trie<T>::const_node_iterator::operator++() {
-    m_ptr = m_ptr->m_p;
-    return m_ptr;
+    if(m_ptr) {
+        m_ptr = m_ptr->m_p;
+    }
+
+    return *this;
 }
 
 template <typename T>
 typename trie<T>::const_node_iterator trie<T>::const_node_iterator::operator++(int) {
-    trie<T>* ret = m_ptr;
-    ++(*m_ptr);
-    return ret;
+    trie<T> const* ret = m_ptr;
+    ++(*this);
+    return *ret;
 }
 
 template <typename T>
@@ -266,12 +260,32 @@ typename trie<T>::leaf_iterator::reference trie<T>::leaf_iterator::operator*() c
 
 template <typename T>
 typename trie<T>::leaf_iterator::pointer trie<T>::leaf_iterator::operator->() const {
-    return m_ptr->m_l;
+    if(m_ptr) { 
+        return m_ptr->m_l;
+    }
+
+    return nullptr;
 }
 
 //TODO
 template <typename T>
 typename trie<T>::leaf_iterator& trie<T>::leaf_iterator::operator++() {
+    if(!m_ptr) {
+        return *this;
+    }
+
+    trie<T>* parent = m_ptr->m_p;
+    bag<trie<T>> const& children = parent->m_c;
+
+    typename bag<trie<T>>::const_iterator it = children.begin();
+
+    while(*it != *m_ptr) { ++it; }
+    
+    if(++it != children.end()) {
+        m_ptr = &(*it);
+    }
+
+    return *this;
 }
 
 //TODO
@@ -324,6 +338,7 @@ typename trie<T>::const_leaf_iterator::pointer trie<T>::const_leaf_iterator::ope
 //TODO
 template <typename T>
 typename trie<T>::const_leaf_iterator& trie<T>::const_leaf_iterator::operator++() {
+    return nullptr;
 }
 
 //TODO
