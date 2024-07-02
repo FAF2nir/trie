@@ -554,12 +554,28 @@ std::istream& operator>>(std::istream& is, trie<T>& t) {
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, trie<T> const& t) {
-    std::cout << "weight: " << t.get_weight() << std::endl;
+    if(t.get_children().empty()) {
+        os << *(t.get_label()) << " " << t.get_weight() << " children={}";
+    } else {
+        bag<trie<T>> const& children = t.get_children();
 
-    if(t.get_label())
-        std::cout << "label: " << *(t.get_label()) << std::endl;
-    else
-        std::cout << "label: nullptr" << std::endl;
+        if(t.get_label() != nullptr) { 
+            os << *(t.get_label()); 
+        }
+        os<< " children={ ";
 
+        typename bag<trie<T>>::const_iterator it = children.begin();
+        do {
+            os << *it;
+
+            if(++it != children.end()) {
+                os << ", ";
+            }
+        } while(it != children.end());
+
+        os << " }";
+
+    }
+    
     return os;
 }

@@ -15,10 +15,7 @@ int main()
         return 1;
     }
 
-    const auto& x = t.max();
-
-    std::cout << x << std::endl;
-
+    std::cout << t << std::endl;
 }
 /*
 children = {
