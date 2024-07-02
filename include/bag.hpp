@@ -432,15 +432,3 @@ template <typename T>
 bool bag<T>::empty() const {
     return m_head == nullptr;
 }
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, bag<T> const& rhs) {
-
-    for(const T& x : rhs) {
-        std::cout << "weight: " << x.get_weight() << std::endl;
-        std::cout << "label: " << *(x.get_label()) << std::endl;
-        std::cout << "parent: " << x.get_parent() << std::endl;
-    }
-
-    return os;
-}
