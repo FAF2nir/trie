@@ -87,7 +87,9 @@ public:
     bool contains(const T& info) const;
     bool empty() const;
     node const* head() const;
+    node* head();
     node const* tail() const;
+    node* tail();
 };
 
 /* Iterator */
@@ -254,7 +256,6 @@ bool bag<T>::operator==(bag<T> const& b) const {
 
 
     while(this_it != end() && b_it != b.end() && equals) {
-    
         if(*(this_it->get_label()) != *(b_it->get_label())) { equals = false; }
         if(*this_it != *b_it) { equals = false; }
         
@@ -342,7 +343,17 @@ typename bag<T>::node const* bag<T>::head() const {
 }
 
 template <typename T>
+typename bag<T>::node* bag<T>::head() {
+    return m_head;
+}
+
+template <typename T>
 typename bag<T>::node const* bag<T>::tail() const {
+    return m_tail;
+}
+
+template <typename T>
+typename bag<T>::node* bag<T>::tail() {
     return m_tail;
 }
 
