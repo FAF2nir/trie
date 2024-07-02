@@ -252,7 +252,7 @@ typename trie<T>::leaf_iterator::pointer trie<T>::leaf_iterator::operator->() co
 
 template <typename T>
 typename trie<T>::leaf_iterator& trie<T>::leaf_iterator::operator++() {
-    trie<T> const* parent = get_leaf().m_p;
+    trie<T>* parent = get_leaf().m_p;
 
     //iterate over the siblings of the current node and get the next one.
     typename bag<trie<T>>::iterator c_it = parent->m_c.begin();
@@ -316,7 +316,6 @@ typename trie<T>::const_leaf_iterator::pointer trie<T>::const_leaf_iterator::ope
     return m_ptr->m_l;
 }
 
-//TODO
 template <typename T>
 typename trie<T>::const_leaf_iterator& trie<T>::const_leaf_iterator::operator++() {
     trie<T> const* parent = get_leaf().m_p;
@@ -342,7 +341,6 @@ typename trie<T>::const_leaf_iterator& trie<T>::const_leaf_iterator::operator++(
     return *this;
 }
 
-//TODO
 template <typename T>
 typename trie<T>::const_leaf_iterator trie<T>::const_leaf_iterator::operator++(int) {
     trie<T> const* ret = m_ptr;
@@ -405,12 +403,47 @@ typename trie<T>::leaf_iterator trie<T>::end() {
 
 template <typename T>
 typename trie<T>::node_iterator trie<T>::root() {
-    if(this->m_p == nullptr) {
-        return {this};
+    trie<T>* ret = this;
+    while (ret->m_p != nullptr) {
+        ret = ret->m_p;
     }
-    
-    this = this->m_p;
-    return root();
+
+    return {ret};
+}
+
+//max_leaf
+template <typename T>
+trie<T>& trie<T>::max() {
+    leaf_iterator it = begin();
+    trie<T> max_leaf = it.get_leaf();
+
+    while(it != end()) {
+        if(it.get_leaf().m_w > max_leaf.m_w) {
+            max_leaf = it.get_leaf();
+        }
+
+        ++it;
+    }
+
+    *this = max_leaf;
+
+    return *this;
+}
+
+template <typename T>
+trie<T> const& trie<T>::max() const {
+    const_leaf_iterator it = begin();
+    trie<T> max_leaf = it.get_leaf();
+
+    while(it != end()) {
+        if(it.get_leaf().m_w > max_leaf.m_w) {
+            max_leaf = it.get_leaf();
+        }
+        ++it;
+    }
+
+    *this = max_leaf;
+    return *this;
 }
 
 /*

@@ -15,18 +15,10 @@ int main()
         return 1;
     }
 
-    /* assume t is a trie<T> */
-    for (auto leaf_it = t.begin(); leaf_it != t.end(); ++leaf_it) {
-        trie<char>::node_iterator node_it = leaf_it; // we convert leaf_it into node_it to navigate from leaf to root
-        std::vector<char> s;
-        while (node_it != t.root()) {
-            s.push_back(*node_it);
-            ++node_it;
-        }
-        std::reverse(s.begin(), s.end());
-        for (auto const& x: s) std::cout << x << ' ';
-        std::cout << '\n';
-    }
+    const auto& x = t.max();
+
+    std::cout << x << std::endl;
+
 }
 /*
 children = {
@@ -61,6 +53,15 @@ children = {
 }
 
 children = {
-
+    a 3.1 children = {}, 
+    ac children = {
+        bc 2.9 children = {},
+        c children = {
+            dg children = {
+                x 7.0 children = {},
+                yz 5.3 children = {}
+            }
+        }
+    }
 }
 */
