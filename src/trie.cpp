@@ -106,10 +106,19 @@ bag<trie<T>>& trie<T>::get_children() { return m_c; }
 /* comparison */
 template <typename T>
 bool trie<T>::operator==(trie<T> const& t) const {
-    if(!m_c.empty())
+    if(!m_c.empty()) {
         return m_c == t.m_c;
-    else
-        return (m_w == t.m_w) && (*m_l == *(t.m_l));
+    }
+    else {
+        bool weight = true;
+        bool label = true;
+        if(m_w != t.m_w) { weight = false; }
+
+        if(m_l != nullptr && t.m_l != nullptr && *m_l != *(t.m_l)) { label = false; }
+        if(m_l != t.m_l) { label = false; }
+
+        return weight && label;
+    }
 }
 
 template <typename T>
@@ -152,6 +161,8 @@ trie<T> const& trie<T>::operator[](std::vector<T> const& s) const {
     
     return *sub_trie;
 }
+
+/* NODE AND LEAF ITERATORS */
 
 /* node iterator */
 template <typename T>
@@ -254,6 +265,11 @@ template <typename T>
 typename trie<T>::leaf_iterator& trie<T>::leaf_iterator::operator++() {
     trie<T>* parent = get_leaf().m_p;
 
+    if(parent == nullptr) {
+        m_ptr = nullptr;
+        return *this;
+    }
+
     //iterate over the siblings of the current node and get the next one.
     typename bag<trie<T>>::iterator c_it = parent->m_c.begin();
     while(*(c_it->m_l) != *(m_ptr->m_l)) { ++c_it; }
@@ -320,6 +336,11 @@ template <typename T>
 typename trie<T>::const_leaf_iterator& trie<T>::const_leaf_iterator::operator++() {
     trie<T> const* parent = get_leaf().m_p;
 
+    if(parent == nullptr) {
+        m_ptr = nullptr;
+        return *this;
+    }
+
     //iterate over the siblings of the current node and get the next one.
     typename bag<trie<T>>::const_iterator c_it = parent->m_c.begin();
     while(*(c_it->m_l) != *(m_ptr->m_l)) { ++c_it; }
@@ -335,7 +356,7 @@ typename trie<T>::const_leaf_iterator& trie<T>::const_leaf_iterator::operator++(
         }
     } else {
         //if it has reached the end of this bag, the new leaf is end() of this bag 
-        m_ptr = &(m_ptr->m_p->end().get_leaf());
+        m_ptr = &(parent->end().get_leaf());
     }
 
     return *this;
@@ -366,6 +387,41 @@ trie<T>::const_leaf_iterator::operator const_node_iterator() const {
 template <typename T>
 trie<T> const& trie<T>::const_leaf_iterator::get_leaf() const {
     return *m_ptr;
+}
+
+/* trie.hpp iterator methods */
+
+template <typename T>
+typename trie<T>::const_leaf_iterator trie<T>::begin() const {
+    if(m_c.empty()) {
+        return {this};
+    }
+
+    return (m_c.head())->info.begin();
+}
+
+template <typename T>
+typename trie<T>::const_leaf_iterator trie<T>::end() const {
+    if(m_p == nullptr) {
+        return {nullptr};
+    }
+
+    trie<T> const* parent = m_p;
+    typename bag<trie<T>>::const_iterator c_it = parent->m_c.begin();
+
+    while(*c_it != *this) { ++c_it; }
+    ++c_it;
+
+    if(c_it != parent->m_c.end()) {
+        if(c_it->m_c.empty()) { 
+            return {&(*c_it)};
+        }
+        else { 
+            return {c_it->begin()};
+        }
+    } else {
+        return {nullptr};
+    }
 }
 
 template <typename T>
@@ -411,40 +467,49 @@ typename trie<T>::node_iterator trie<T>::root() {
     return {ret};
 }
 
-//max_leaf
+template <typename T>
+typename trie<T>::const_node_iterator trie<T>::root() const{
+    trie<T> const* ret = this;
+    while (ret->m_p != nullptr) {
+        ret = ret->m_p;
+    }
+
+    return {ret};
+}
+
+/* max_leaf */
 template <typename T>
 trie<T>& trie<T>::max() {
     leaf_iterator it = begin();
-    trie<T> max_leaf = it.get_leaf();
+    trie<T>* max_leaf = &(it.get_leaf());
 
     while(it != end()) {
-        if(it.get_leaf().m_w > max_leaf.m_w) {
-            max_leaf = it.get_leaf();
+        if(it.get_leaf().m_w > (*max_leaf).m_w) {
+            max_leaf = &(it.get_leaf());
         }
 
         ++it;
     }
 
-    *this = max_leaf;
-
-    return *this;
+    return *max_leaf;
 }
 
 template <typename T>
 trie<T> const& trie<T>::max() const {
     const_leaf_iterator it = begin();
-    trie<T> max_leaf = it.get_leaf();
+    trie<T> const* max_leaf = &(it.get_leaf());
 
     while(it != end()) {
-        if(it.get_leaf().m_w > max_leaf.m_w) {
-            max_leaf = it.get_leaf();
+        if(it.get_leaf().m_w > (*max_leaf).m_w) {
+            max_leaf = &(it.get_leaf());
         }
         ++it;
     }
 
-    *this = max_leaf;
-    return *this;
+    return *max_leaf;
 }
+
+/*  */
 
 /*
     CFG:
@@ -555,7 +620,12 @@ std::istream& operator>>(std::istream& is, trie<T>& t) {
 template <typename T>
 std::ostream& operator<<(std::ostream& os, trie<T> const& t) {
     if(t.get_children().empty()) {
-        os << *(t.get_label()) << " " << t.get_weight() << " children={}";
+        if(t.get_label() != nullptr) {
+            os << *(t.get_label()) << " ";
+        }
+
+        os << t.get_weight() << " children={}";
+    
     } else {
         bag<trie<T>> const& children = t.get_children();
 

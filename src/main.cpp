@@ -4,10 +4,10 @@
 
 int main()
 {
-    trie<std::string> t;
+    trie<char> t1;
 
     try {
-        std::cin >> t;
+        std::cin >> t1;
     }
     catch (parser_exception e)
     {
@@ -15,7 +15,9 @@ int main()
         return 1;
     }
 
-    std::cout << t << std::endl;
+    trie<char>& t = t1; 
+
+    std::cout << t.max() << std::endl;
 }
 /*
 children = {
