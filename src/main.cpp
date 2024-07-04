@@ -15,9 +15,21 @@ int main()
         return 1;
     }
 
-    trie<char>& t = t1; 
+    trie<char> const& t = t1;
+    trie<char>& s = t1;
 
-    std::cout << t.max() << std::endl;
+    /* assume t is a trie<T> */
+    for (auto leaf_it = t.begin(); leaf_it != t.end(); leaf_it++) {
+        trie<char>::const_node_iterator node_it = leaf_it; // we convert leaf_it into node_it to navigate from leaf to root
+        std::vector<char> s;
+        while (node_it != t.root()) {
+            s.push_back(*node_it);
+            node_it++;
+        }
+        std::reverse(s.begin(), s.end());
+        for (auto const& x: s) std::cout << x << ' ';
+        std::cout << '\n';
+    }
 }
 /*
 children = {

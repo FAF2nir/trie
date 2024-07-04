@@ -188,9 +188,9 @@ typename trie<T>::node_iterator& trie<T>::node_iterator::operator++() {
 
 template <typename T>
 typename trie<T>::node_iterator trie<T>::node_iterator::operator++(int) {
-    trie<T>* ret = m_ptr;
+    node_iterator ret(m_ptr);
     ++(*this);
-    return *ret;
+    return ret;
 }
 
 template <typename T>
@@ -228,9 +228,9 @@ typename trie<T>::const_node_iterator& trie<T>::const_node_iterator::operator++(
 
 template <typename T>
 typename trie<T>::const_node_iterator trie<T>::const_node_iterator::operator++(int) {
-    trie<T> const* ret = m_ptr;
+    const_node_iterator ret(m_ptr);
     ++(*this);
-    return *ret;
+    return ret;
 }
 
 template <typename T>
@@ -293,9 +293,9 @@ typename trie<T>::leaf_iterator& trie<T>::leaf_iterator::operator++() {
 
 template <typename T>
 typename trie<T>::leaf_iterator trie<T>::leaf_iterator::operator++(int) {
-    trie<T>* ret = m_ptr;
+    leaf_iterator ret(m_ptr);
     ++(*this);
-    return *ret;
+    return ret;
 }
 
 template <typename T>
@@ -364,9 +364,9 @@ typename trie<T>::const_leaf_iterator& trie<T>::const_leaf_iterator::operator++(
 
 template <typename T>
 typename trie<T>::const_leaf_iterator trie<T>::const_leaf_iterator::operator++(int) {
-    trie<T> const* ret = m_ptr;
+    const_leaf_iterator ret(m_ptr);
     ++(*this);
-    return *ret;
+    return ret;
 }
 
 template <typename T>
