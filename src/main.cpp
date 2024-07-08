@@ -4,7 +4,7 @@
 
 int main()
 {
-    trie<char> t1;
+    trie<std::string> t1;
 
     try {
         std::cin >> t1;
@@ -15,23 +15,53 @@ int main()
         return 1;
     }
 
-    trie<char> const& t = t1;
-    trie<char>& s = t1;
+    trie<std::string> t2 = t1;
 
-    /* assume t is a trie<T> */
-    for (auto leaf_it = t.begin(); leaf_it != t.end(); leaf_it++) {
-        trie<char>::const_node_iterator node_it = leaf_it; // we convert leaf_it into node_it to navigate from leaf to root
-        std::vector<char> s;
-        while (node_it != t.root()) {
-            s.push_back(*node_it);
-            node_it++;
-        }
-        std::reverse(s.begin(), s.end());
-        for (auto const& x: s) std::cout << x << ' ';
-        std::cout << '\n';
-    }
+    std::cout << (t1 == t2) << std::endl;
 }
 /*
+children = {
+    true children = {
+        a children = {
+            cazzo 3.3 children = {},
+            pene 4.5 children = {}
+        },
+
+        b children = {
+            puzza children = {
+                sgorbio 5.5 children = {},
+                sburro children = {
+                    susina 9.2 children = {},
+                    suso 0.0 children = {},
+                    susan 9.0 children = {}
+                },
+                sbarrio 4.4 children = {}
+            }
+        }
+    },
+
+    false children = {
+        a children = {
+            cazzo 3.3 children = {},
+            pene 4.5 children = {}
+        },
+
+        b children = {
+            puzza children = {
+                sgorbio 5.5 children = {},
+                sburro children = {
+                    susina 9.2 children = {},
+                    suso 0 children = {},
+                    susan 8.0 children = {}
+                },
+                sbarrio 4.4 children = {}
+            }
+        }
+    }
+}
+
+
+
 children = {
     compilers children = {
         g++ children = {

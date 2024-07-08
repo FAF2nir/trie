@@ -106,19 +106,11 @@ bag<trie<T>>& trie<T>::get_children() { return m_c; }
 /* comparison */
 template <typename T>
 bool trie<T>::operator==(trie<T> const& t) const {
-    if(!m_c.empty()) {
-        return m_c == t.m_c;
+    if(m_c.empty() != t.m_c.empty()) {
+        return false;
     }
-    else {
-        bool weight = true;
-        bool label = true;
-        if(m_w != t.m_w) { weight = false; }
 
-        if(m_l != nullptr && t.m_l != nullptr && *m_l != *(t.m_l)) { label = false; }
-        if(m_l != t.m_l) { label = false; }
-
-        return weight && label;
-    }
+    return m_c == t.m_c;
 }
 
 template <typename T>

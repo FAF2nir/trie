@@ -250,20 +250,27 @@ bag<T>& bag<T>::operator=(bag&& b) {
 /* comparison */
 template <typename T>
 bool bag<T>::operator==(bag<T> const& b) const {
-    const_iterator this_it = begin();
-    const_iterator b_it = b.begin();
-    bool equals = true;
+    node* ptr1 = m_head;
+    node* ptr2 = b.m_head;
 
+    while(ptr1 && ptr2) {
+        if(*(ptr1->info.get_label()) != *(ptr2->info.get_label())) {
+            return false;
+        }
 
-    while(this_it != end() && b_it != b.end() && equals) {
-        if(*(this_it->get_label()) != *(b_it->get_label())) { equals = false; }
-        if(*this_it != *b_it) { equals = false; }
-        
-        ++this_it;
-        ++b_it;
+        if(ptr1->info.get_weight() != ptr2->info.get_weight()) {
+            return false;
+        }
+
+        if(ptr1->info.get_children() != ptr2->info.get_children()) {
+            return false;
+        }
+
+        ptr1 = ptr1->next;
+        ptr2 = ptr2->next;
     }
-    
-    return equals;   
+
+    return ptr1 == nullptr && ptr2 == nullptr;
 }
 
 template <typename T>
