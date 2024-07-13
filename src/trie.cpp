@@ -34,9 +34,6 @@ trie<T>& trie<T>::operator=(trie<T> const& rhs) {
             typename bag<trie<T>>::const_iterator rhs_it = rhs.m_c.begin();
 
             while(this_it != m_c.end() && rhs_it != rhs.m_c.end()) {
-                
-                //this_it->m_p = this;
-
                 if(this_it->m_l) {
                     delete this_it->m_l;
                     this_it->m_l = nullptr;
@@ -56,7 +53,6 @@ trie<T>& trie<T>::operator=(trie<T> const& rhs) {
 template <typename T>
 trie<T>& trie<T>::operator=(trie<T>&& rhs) {
     if(this != &rhs) {
-        m_l = rhs.m_l;
         m_w = std::move(rhs.m_w);
         m_c = std::move(rhs.m_c);
 
@@ -359,7 +355,7 @@ typename trie<T>::const_leaf_iterator& trie<T>::const_leaf_iterator::operator++(
             m_ptr = &(c_it->begin().get_leaf());
         }
     } else {
-        //if it has reached the end of this bag, the new leaf is end() of this bag 
+        //if it has reached the end of this bag, the new leaf is end() of this subtrie
         m_ptr = &(parent->end().get_leaf());
     }
 
@@ -474,15 +470,17 @@ typename trie<T>::const_node_iterator trie<T>::root() const{
 /* max_leaf */
 template <typename T>
 trie<T>& trie<T>::max() {
-    leaf_iterator it = begin();
-    trie<T>* max_leaf = &(it.get_leaf());
+    if(m_c.empty()) {
+        return *this;
+    }
 
-    while(it != end()) {
-        if(it.get_leaf().m_w > (*max_leaf).m_w) {
-            max_leaf = &(it.get_leaf());
+    trie<T>* max_leaf = this;
+
+    for(trie<T> const& c : m_c) {
+        trie<T> child_max = c.max();
+        if(child_max.m_w > max_leaf->m_w) {
+            max_leaf = &child_max;
         }
-
-        ++it;
     }
 
     return *max_leaf;
@@ -490,20 +488,21 @@ trie<T>& trie<T>::max() {
 
 template <typename T>
 trie<T> const& trie<T>::max() const {
-    const_leaf_iterator it = begin();
-    trie<T> const* max_leaf = &(it.get_leaf());
+    if(m_c.empty()) {
+        return *this;
+    }
 
-    while(it != end()) {
-        if(it.get_leaf().m_w > (*max_leaf).m_w) {
-            max_leaf = &(it.get_leaf());
+    trie<T> const* max_leaf = this;
+
+    for(trie<T> const& c : m_c) {
+        trie<T> child_max = c.max();
+        if(child_max.m_w > max_leaf->m_w) {
+            max_leaf = &child_max;
         }
-        ++it;
     }
 
     return *max_leaf;
 }
-
-/*  */
 
 /*
     CFG:
@@ -638,7 +637,6 @@ std::ostream& operator<<(std::ostream& os, trie<T> const& t) {
         } while(it != children.end());
 
         os << " }";
-
     }
     
     return os;

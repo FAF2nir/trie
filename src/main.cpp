@@ -4,130 +4,25 @@
 #include <cassert>
 #include <fstream>
 
-void test_construction_destruction() {
-    trie<char> t1;
-    assert(t1.get_weight() == 0.0);
-
-    trie<char> t2(5.1);
-    assert(t2.get_weight() == 5.1);
-
-    std::cout << "Construction and destruction tests passed." << std::endl;
-}
-
-void test_parsing() {
-/*    std::ifstream file1("trie_char.tr");
-    trie<char> t1;
-    file1 >> t1;
-    file1.close();
-
-    std::ifstream file2("trie_double.tr");
-    trie<double> t2;
-    file2 >> t2;
-    file2.close();
-
-    std::ifstream file3("trie_string.tr");
-    trie<std::string> t3;
-    file3 >> t3;
-    file3.close();
-
-    std::cout << "Parsing tests passed." << std::endl;
-*/}
-
-
-void test_basic_operations() {
-    trie<char> t;
-    t.set_weight(3.1);
-
-    trie<char> child1(2.9);
-    child1.set_label(new char('b'));
-    t.add_child(child1);
-
-    trie<char> child2(7.0);
-    child2.set_label(new char('c'));
-    t.add_child(child2);
-
-    std::cout << "Basic operations tests passed." << std::endl;
-}
-
-void test_iterators() {
-    trie<char> t;
-    t.set_weight(3.1);
-
-    trie<char> child1(2.9);
-    child1.set_label(new char('b'));
-    t.add_child(child1);
-
-    trie<char> child2(7.0);
-    child2.set_label(new char('c'));
-    t.add_child(child2);
-
-    // Test node_iterator
-    auto node_it = t.root();
-    assert(node_it == t.root());
-
-    // Test leaf_iterator
-    auto leaf_it = t.begin();
-    assert(leaf_it.get_leaf().get_weight() == 2.9);
-    ++leaf_it;
-
-    std::cout << "Iterator tests passed." << std::endl;
-}
-
-void test_prefix_search() {
-    trie<char> t;
-    t.set_weight(3.1);
-
-    trie<char> child1(2.9);
-    child1.set_label(new char('b'));
-    t.add_child(child1);
-
-    trie<char> child2(7.0);
-    child2.set_label(new char('c'));
-    t.add_child(child2);
-
-    std::vector<char> prefix{'b'};
-    auto subtrie = t[prefix];
-    assert(subtrie.get_weight() == 2.9);
-
-    std::cout << "Prefix search tests passed." << std::endl;
-}
-
-void test_max_leaf() {
-    trie<char> t;
-    t.set_weight(3.1);
-
-    trie<char> child1(2.9);
-    child1.set_label(new char('b'));
-    t.add_child(child1);
-
-    trie<char> child2(7.0);
-    child2.set_label(new char('c'));
-    t.add_child(child2);
-
-    std::cout << t << std::endl;
-
-    auto max_leaf = t.max();
-    assert(max_leaf.get_weight() == 7);
-
-    std::cout << "Max leaf tests passed." << std::endl;
-}
-
 int main()
 {
+
     trie<int> t;
+    trie<int> sub;
+
     try {
         std::cin >> t;
+        std::cin >> sub;
     } catch(parser_exception e) {
         std::cout << e.what() << std::endl;
     }
 
-    trie<int> t1 = t;
 
-    t1 = t1[{2, 7}];
+    t[{1}] = std::move(sub);
+    std::cout << t << std::endl;
+    std::cout << sub << std::endl;
 
-    std::cout << t1 << std::endl;
-
-    return 0;
+    
 }
 /*
 1: 0 children = {}

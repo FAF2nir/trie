@@ -83,7 +83,6 @@ public:
 
     /* methods */
     void add(const T& info);
-    void remove(const T& info);
     bool contains(const T& info) const;
     bool empty() const;
     node const* head() const;
@@ -389,35 +388,6 @@ void bag<T>::add(const T& t) {
             node* n = new node{ t, ptr->next };
             ptr->next = n;
             inserted = true;
-        }
-        ptr = ptr->next;
-    }
-}
-
-/* deletes elements given the value */
-template <typename T>
-void bag<T>::remove(const T& info) {
-    if (empty())
-        return;
-
-    if (m_head->info == info) {
-        pop_front();
-        return;
-    }
-
-    if (m_tail->info == info) {
-        pop_back();
-        return;
-    }
-
-    node* ptr = m_head;
-    bool deleted = false;
-    while (ptr->next && !deleted) {
-        if (ptr->next->info == info) {
-            node* tmp = ptr->next;
-            ptr->next = tmp->next;
-            delete tmp;
-            deleted = true;
         }
         ptr = ptr->next;
     }
