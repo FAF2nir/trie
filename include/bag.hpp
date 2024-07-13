@@ -425,7 +425,6 @@ void bag<T>::remove(const T& info) {
 
 template <typename T>
 bool bag<T>::contains(const T& info) const {
-
     for(const_iterator it = begin(); it != end(); ++it) {
         if( *(it->get_label()) == *(info.get_label()) ) {
             return true;
@@ -438,4 +437,16 @@ bool bag<T>::contains(const T& info) const {
 template <typename T>
 bool bag<T>::empty() const {
     return m_head == nullptr;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, bag<T> const& b) {
+    os << "[ ";
+    for(T const& el : b) {
+        os << *(el.get_label()) << " ";
+    }
+
+    os << "]";
+
+    return os;
 }

@@ -7,8 +7,10 @@ template <typename T>
 trie<T>::trie(double w) : m_p(nullptr), m_l(nullptr), m_c(), m_w(w) {}
 
 template <typename T>
-trie<T>::trie(trie<T> const& t) : trie() {
-    *this = t;
+trie<T>::trie(trie<T> const& t) : m_p(nullptr), m_l(t.m_l ? new T(*t.m_l) : nullptr), m_c(t.m_c), m_w(t.m_w) {
+    for(trie<T>& c : m_c) {
+        c.m_p = this;
+    }
 }
 
 template <typename T>
@@ -24,15 +26,27 @@ trie<T>::~trie() {
 template <typename T>
 trie<T>& trie<T>::operator=(trie<T> const& rhs) {
     if(this != &rhs) {
-        if(rhs.m_l) { m_l = new T(*rhs.m_l); }
+        m_w = rhs.m_w;
+        m_c = rhs.m_c;
 
-        if(rhs.m_w != 0) {
-            m_w = rhs.m_w;
-        }
-        else {
-            m_c = rhs.m_c;
-            for(trie<T>& child : m_c) {
-                child.m_p = this;
+        if(!m_c.empty()) {
+            typename bag<trie<T>>::iterator this_it = m_c.begin();
+            typename bag<trie<T>>::const_iterator rhs_it = rhs.m_c.begin();
+
+            while(this_it != m_c.end() && rhs_it != rhs.m_c.end()) {
+                
+                //this_it->m_p = this;
+
+                if(this_it->m_l) {
+                    delete this_it->m_l;
+                    this_it->m_l = nullptr;
+                }
+                if(rhs_it->m_l) {
+                    this_it->m_l = new T( *(rhs_it->m_l) );
+                }
+
+                ++this_it;
+                ++rhs_it;
             }
         }
     }
@@ -42,9 +56,8 @@ trie<T>& trie<T>::operator=(trie<T> const& rhs) {
 template <typename T>
 trie<T>& trie<T>::operator=(trie<T>&& rhs) {
     if(this != &rhs) {
-        m_p = rhs.m_p;
         m_l = rhs.m_l;
-        m_w = rhs.m_w;
+        m_w = std::move(rhs.m_w);
         m_c = std::move(rhs.m_c);
 
         for(trie<T>& child : m_c) {
@@ -76,7 +89,6 @@ void trie<T>::add_child(trie<T> const& c) {
     if(m_w != 0) {
         m_w = 0;
     }
-
     m_c.add(c);
 }
 
@@ -110,7 +122,7 @@ bool trie<T>::operator==(trie<T> const& t) const {
         return false;
     }
 
-    return m_c == t.m_c;
+    return (m_w == t.m_w) && (m_c == t.m_c);
 }
 
 template <typename T>
@@ -451,22 +463,12 @@ typename trie<T>::leaf_iterator trie<T>::end() {
 
 template <typename T>
 typename trie<T>::node_iterator trie<T>::root() {
-    trie<T>* ret = this;
-    while (ret->m_p != nullptr) {
-        ret = ret->m_p;
-    }
-
-    return {ret};
+    return {this};
 }
 
 template <typename T>
 typename trie<T>::const_node_iterator trie<T>::root() const{
-    trie<T> const* ret = this;
-    while (ret->m_p != nullptr) {
-        ret = ret->m_p;
-    }
-
-    return {ret};
+    return {this};
 }
 
 /* max_leaf */
@@ -622,9 +624,9 @@ std::ostream& operator<<(std::ostream& os, trie<T> const& t) {
         bag<trie<T>> const& children = t.get_children();
 
         if(t.get_label() != nullptr) { 
-            os << *(t.get_label()); 
+            os << *(t.get_label()) << " "; 
         }
-        os<< " children={ ";
+        os<< "children={ ";
 
         typename bag<trie<T>>::const_iterator it = children.begin();
         do {
