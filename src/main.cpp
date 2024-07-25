@@ -6,23 +6,18 @@
 
 int main()
 {
-
     trie<int> t;
-    trie<int> sub;
 
     try {
         std::cin >> t;
-        std::cin >> sub;
     } catch(parser_exception e) {
         std::cout << e.what() << std::endl;
     }
 
+    trie<int> const& t1 = t;
 
-    t[{1}] = std::move(sub);
-    std::cout << t << std::endl;
-    std::cout << sub << std::endl;
-
-    
+    std::cout << t[{1}].max() << std::endl;
+    std::cout << t1.max() << std::endl;
 }
 /*
 1: 0 children = {}

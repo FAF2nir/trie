@@ -14,8 +14,12 @@ trie<T>::trie(trie<T> const& t) : m_p(nullptr), m_l(t.m_l ? new T(*t.m_l) : null
 }
 
 template <typename T>
-trie<T>::trie(trie<T>&& t) : trie() {
-    *this = std::move(t);
+trie<T>::trie(trie<T>&& t) : m_p(nullptr), m_l(t.m_l), m_c(std::move(t.m_c)), m_w(std::move(t.m_w)) {
+    for(trie<T>& c : m_c) {
+        c.m_p = this;
+    }
+    t.m_l = nullptr;
+    t.m_p = nullptr;
 }
 
 template <typename T>
@@ -59,9 +63,6 @@ trie<T>& trie<T>::operator=(trie<T>&& rhs) {
         for(trie<T>& child : m_c) {
             child.m_p = this;
         }
-
-        rhs.m_p = nullptr;
-        rhs.m_l = nullptr;
     }
     return *this;
 }
@@ -474,10 +475,10 @@ trie<T>& trie<T>::max() {
         return *this;
     }
 
-    trie<T>* max_leaf = this;
+    trie<T>* max_leaf = &(begin().get_leaf());
 
-    for(trie<T> const& c : m_c) {
-        trie<T> child_max = c.max();
+    for(trie<T>& c : m_c) {
+        trie<T>& child_max = c.max();
         if(child_max.m_w > max_leaf->m_w) {
             max_leaf = &child_max;
         }
@@ -492,10 +493,10 @@ trie<T> const& trie<T>::max() const {
         return *this;
     }
 
-    trie<T> const* max_leaf = this;
+    trie<T> const* max_leaf = &(begin().get_leaf());
 
     for(trie<T> const& c : m_c) {
-        trie<T> child_max = c.max();
+        trie<T> const& child_max = c.max();
         if(child_max.m_w > max_leaf->m_w) {
             max_leaf = &child_max;
         }
