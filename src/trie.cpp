@@ -255,11 +255,7 @@ typename trie<T>::leaf_iterator::reference trie<T>::leaf_iterator::operator*() c
 
 template <typename T>
 typename trie<T>::leaf_iterator::pointer trie<T>::leaf_iterator::operator->() const {
-    if(m_ptr) { 
-        return m_ptr->m_l;
-    }
-
-    return nullptr;
+    return m_ptr->m_l;
 }
 
 template <typename T>
@@ -285,8 +281,13 @@ typename trie<T>::leaf_iterator& trie<T>::leaf_iterator::operator++() {
             m_ptr = &(c_it->begin().get_leaf());
         }
     } else {
-        //if it has reached the end of this bag, the new leaf is end() of this bag 
-        m_ptr = &(m_ptr->m_p->end().get_leaf());
+        //if it has reached the end of this bag, the new leaf is end() of the next up-trie
+
+        while(parent->end() == nullptr && parent->m_p != nullptr) {
+            parent = parent->m_p;
+        }
+
+        m_ptr = &(parent->end().get_leaf());
     }
 
     return *this;
@@ -356,7 +357,11 @@ typename trie<T>::const_leaf_iterator& trie<T>::const_leaf_iterator::operator++(
             m_ptr = &(c_it->begin().get_leaf());
         }
     } else {
-        //if it has reached the end of this bag, the new leaf is end() of this subtrie
+        //if it has reached the end of this bag, the new leaf is end() of the next up-trie
+        while(parent->end() == nullptr && parent->m_p != nullptr) {
+            parent = parent->m_p;
+        }
+
         m_ptr = &(parent->end().get_leaf());
     }
 

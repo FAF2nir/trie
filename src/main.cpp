@@ -6,7 +6,7 @@
 
 int main()
 {
-    trie<int> t;
+    trie<std::string> t;
 
     try {
         std::cin >> t;
@@ -14,10 +14,18 @@ int main()
         std::cout << e.what() << std::endl;
     }
 
-    trie<int> const& t1 = t;
-
-    std::cout << t[{1}].max() << std::endl;
-    std::cout << t1.max() << std::endl;
+    /* assume t is a trie<T> */
+    for (auto leaf_it = t.begin(); leaf_it != t.end(); ++leaf_it) {
+        trie<std::string>::node_iterator node_it = leaf_it; // we convert leaf_it into node_it to navigate from leaf to root
+        std::vector<std::string> s;
+        while (node_it != t.root()) {
+            s.push_back(*node_it);
+            ++node_it;
+        }
+        std::reverse(s.begin(), s.end());
+        for (auto const& x: s) std::cout << x << ' ';
+        std::cout << '\n';
+    }
 }
 /*
 1: 0 children = {}
