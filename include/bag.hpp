@@ -14,7 +14,7 @@ private:
     void push_front(const T& info);
     void pop_back();
     void pop_front();
-    void clean();
+    void swap(node* a, node* b);
 
 public:
     class iterator {
@@ -82,7 +82,9 @@ public:
     bool operator!=(bag<T> const& b) const;
 
     /* methods */
+    void clean();
     void add(const T& info);
+    void sort();
     bool contains(const T& info) const;
     bool empty() const;
     node const* head() const;
@@ -340,6 +342,41 @@ void bag<T>::clean() {
     while(!empty()) {
         pop_front();
     }
+}
+
+template <typename T>
+void bag<T>::sort() {
+    if(empty() || m_head == m_tail) {
+        return;
+    }
+
+    node* ptr = m_head;
+    node* nptr = m_head->next;
+    
+    while(ptr && nptr) {
+        while(nptr) {
+
+            if(*(ptr->info.get_label()) > *(nptr->info.get_label())) {
+                swap(ptr, nptr);
+            }
+
+            nptr = nptr->next;
+        }
+
+        ptr = ptr->next;
+        nptr = ptr->next;
+    }
+}
+
+template <typename T>
+void bag<T>::swap(node* a, node* b) {
+    auto al_tmp = a->info.get_label();
+    T tmp = a->info;
+    a->info = b->info;
+    b->info = tmp;
+
+    a->info.set_label(b->info.get_label());
+    b->info.set_label(al_tmp);
 }
 
 /* public methods */

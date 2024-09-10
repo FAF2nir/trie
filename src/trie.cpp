@@ -14,17 +14,21 @@ trie<T>::trie(trie<T> const& t) : m_p(nullptr), m_l(t.m_l ? new T(*t.m_l) : null
 }
 
 template <typename T>
-trie<T>::trie(trie<T>&& t) : m_p(nullptr), m_l(t.m_l), m_c(std::move(t.m_c)), m_w(std::move(t.m_w)) {
+trie<T>::trie(trie<T>&& t) : m_p(nullptr), m_l(nullptr), m_c(std::move(t.m_c)), m_w(std::move(t.m_w)) {
     for(trie<T>& c : m_c) {
         c.m_p = this;
     }
-    t.m_l = nullptr;
+
+    if(t.m_l) {
+        delete t.m_l;
+        t.m_l = nullptr;
+    }
     t.m_p = nullptr;
 }
 
 template <typename T>
 trie<T>::~trie() {
-    if(m_l) delete m_l;
+    if(m_l) { delete m_l; }
 }
 
 template <typename T>
@@ -48,6 +52,10 @@ trie<T>& trie<T>::operator=(trie<T> const& rhs) {
 
                 ++this_it;
                 ++rhs_it;
+            }
+
+            for(trie<T>& child : m_c) {
+                child.m_p = this;
             }
         }
     }
@@ -83,9 +91,10 @@ void trie<T>::add_child(trie<T> const& c) {
         throw parser_exception("[!] Error: this element is already in the bag.");
     }
 
-    if(m_w != 0) {
-        m_w = 0;
+    if(m_w != 0.0f) {
+        m_w = 0.0f;
     }
+
     m_c.add(c);
 }
 
@@ -510,11 +519,32 @@ trie<T> const& trie<T>::max() const {
     return *max_leaf;
 }
 
+//path_compress
+template <typename T>
+void trie<T>::path_compress() {
+    if(m_c.empty()) {
+        return;
+    }
+
+    for(trie<T>& t : m_c) {
+        t.path_compress();
+
+        if(t.m_c.head() == t.m_c.tail() && !t.m_c.empty()) {
+            *(t.m_l) = *(t.m_l) + *((t.m_c.head())->info.m_l);
+            t.m_w = t.m_c.head()->info.m_w;
+
+            t.m_c.clean();
+        }
+    }
+
+    m_c.sort();
+}
+
 /*
     CFG:
     TRIE -> LEAF | NODE
     LEAF -> double children = {}
-    NODE -> children = { label1 TRIE, ... }
+    NODE -> children = { label1 TRIE, label2 TRIE, ..., labeln TRIE }
 */
 
 template <typename T>
@@ -523,7 +553,6 @@ template <typename T>
 trie<T> LEAF(std::istream& is, trie<T>* parent, T* label);
 template <typename T>
 trie<T> TR(std::istream& is, trie<T>* parent, T* label);
-
 
 static void consume_children(std::istream& is)
 {
@@ -537,20 +566,30 @@ static void consume_children(std::istream& is)
     is.read(buff, 8);
     std::string s(buff);
 
-    if (s != "children") throw parser_exception("[!] Parser Error: 'children' expected.");
-
+    if (s != "children") {
+        throw parser_exception("[!] Parser Error: 'children' expected.");
+    }
     //consume '=', ignoring eventual spacing
     is >> c;
-    if (c != '=') throw parser_exception("[!] Parser Error: '=' expected.");
-
+    if (c != '=') { 
+        throw parser_exception("[!] Parser Error: '=' expected.");
+    }
     //consume '{', ignoring eventual spacing
     is >> c;
-    if (c != '{') throw parser_exception("[!] Parser Error: '{' expected.");
+    if (c != '{') {
+        throw parser_exception("[!] Parser Error: '{' expected.");
+    }
 }
 
 template <typename T>
 trie<T> NODE(std::istream& is, trie<T>* parent, T* label) {
-    consume_children(is);
+    try {
+        consume_children(is);
+    } catch (const parser_exception& e) {
+        delete label;
+        throw;
+    }
+
 
     trie<T> r;
     r.set_label(label);
@@ -568,6 +607,10 @@ trie<T> NODE(std::istream& is, trie<T>* parent, T* label) {
     } while(c == ',');
 
     if(c != '}') {
+        if(r.get_label()) {
+            delete r.get_label();
+            r.set_label(nullptr);
+        }
         throw parser_exception("[!] Parser Error: '}' or ',' expected.");
     }
 
@@ -583,11 +626,21 @@ trie<T> LEAF(std::istream& is, trie<T>* parent, T* label) {
     r.set_label(label);
     r.set_parent(parent);
 
-    consume_children(is);
+    try {
+        consume_children(is);
+    } catch (const parser_exception& e) {
+        delete label;
+        r.set_label(nullptr);
+        throw;
+    }
 
     char c;
     is >> c;
     if(c != '}') {
+        if(r.get_label()) { 
+            delete r.get_label();
+            r.set_label(nullptr);
+        }
         throw parser_exception("[!] Parser Error: '}' expected.");
     }
 
