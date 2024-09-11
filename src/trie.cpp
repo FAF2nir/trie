@@ -525,18 +525,20 @@ void trie<T>::path_compress() {
     if(m_c.empty()) {
         return;
     }
-
+    
     for(trie<T>& t : m_c) {
         t.path_compress();
-
-        if(t.m_c.head() == t.m_c.tail() && !t.m_c.empty()) {
-            *(t.m_l) = *(t.m_l) + *((t.m_c.head())->info.m_l);
-            t.m_w = t.m_c.head()->info.m_w;
-
-            t.m_c.clean();
-        }
     }
 
+    if(m_c.head() == m_c.tail() && m_l != nullptr) {
+        *(m_l) = *(m_l) + *((m_c.head())->info.m_l);
+        m_w = m_c.head()->info.m_w;
+
+        bag<trie<T>> children = m_c.head()->info.m_c;
+        m_c.clean();
+        m_c = children;
+    }
+    
     m_c.sort();
 }
 

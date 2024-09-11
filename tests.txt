@@ -131,7 +131,7 @@ children = { a children = { b 3.3 children = {} } }
 
 children = {
     0 children = {
-        20 3.3 children = {}
+        20 4.4 children = {}
     },
 
     1 children = { 
@@ -140,7 +140,9 @@ children = {
 
     2 children = {
         1 children = {
-            6 2.2 children = {}
+            6 children = {
+                7 2.2 children = {}
+            }
         },
         3 3.3 children = {}
     }
@@ -179,6 +181,20 @@ children = {
         3 3.3 children = {}
     }
 }
+
+children = {
+    4 3.1 children = {},
+    5 children = {
+        2 2.9 children = {},
+        1 children = {
+            21 children = {
+                7 7.0 children = {},
+                12 5.3 children = {}
+            }
+        }
+    }
+}
+
 
 children = { 
     a children = { 
